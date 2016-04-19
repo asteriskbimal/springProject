@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.8.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+<!-- Activates annotation based transaction management -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!-- Scan for transaction-based resources -->
+	<context:component-scan base-package="com.bimal.serviceimpl" />
+	<context:component-scan base-package="com.bimal.model" />
+	<context:component-scan base-package="com.bimal.repository" />
+
+
+	<!-- Scan for transaction-based resources -->
+	<!--<context:component-scan base-package="com.hello.world"> <context:exclude-filter 
+		type="annotation" expression="org.springframework.stereotype.Controller"/> 
+		</context:component-scan> -->
+
+
+	<!-- JPA repositories can be set up using the repositories element. entity-manager-factory-ref: 
+		Explicitly wire the EntityManagerFactory to be used with the repositories 
+		being detected by the repositories element. Usually used if multiple EntityManagerFactory 
+		beans are used within the application. If not configured we will automatically 
+		lookup the single EntityManagerFactory configured in the ApplicationContext. 
+		transaction-manager-ref : Explicitly wire the PlatformTransactionManager 
+		to be used with the repositories being detected by the repositories element. 
+		Usually only necessary if multiple transaction managers and/or EntityManagerFactory 
+		beans have been configured. Default to a single defined PlatformTransactionManager 
+		inside the current ApplicationContext. -->
+
+	<jpa:repositories base-package="com.bimal.repository"
+		entity-manager-factory-ref="entityManager" transaction-manager-ref="transactionManager" />
+
+	<!-- Hibernate Session Factory -->
+	<bean id="entityManager"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan" value="com.abc.model" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/school?createDatabaseIfNotExist=true" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+	</bean>
+	
+		
+	<!-- Hibernate Transaction Manager -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManager" />
+	</bean>
+
+</beans>
